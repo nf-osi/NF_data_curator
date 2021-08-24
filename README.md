@@ -1,6 +1,4 @@
 
-**Please note, "releases" only pertain to changes in the JSON-LD schema file.**
-
 # NF Data Curator App
 
 ## Shiny app configuration
