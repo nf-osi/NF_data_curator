@@ -21,7 +21,7 @@ ui <- shinydashboardPlus::dashboardPage(
       dropdownBlock(
         id = "header_selection_dropdown",
         title = "Selection",
-        icon = icon("sliders-h"),
+        icon = icon("sliders"),
         badgeStatus = "info",
         fluidRow(
           lapply(datatypes, function(x) {
@@ -34,7 +34,10 @@ ui <- shinydashboardPlus::dashboardPage(
               )
             )
           }),
-          actionButton("btn_header_update", NULL, icon("sync-alt"), class = "btn-shiny-effect")
+          actionButton(
+            inputId = "btn_header_update", class = "btn-shiny-effect",
+            label = NULL, icon = icon("sync-alt")
+          )
         )
       )
     ),
@@ -91,10 +94,9 @@ ui <- shinydashboardPlus::dashboardPage(
   dashboardBody(
     tags$head(
       tags$style(sass(sass_file("www/scss/main.scss"))),
-      singleton(includeScript("www/js/readCookie.js")),
-      tags$script(htmlwidgets::JS("setTimeout(function(){history.pushState({}, 'Data Curator', window.location.pathname);},2000);"))
+      singleton(includeScript("www/js/readCookie.js"))
     ),
-    use_notiflix_report(width = "400px"),
+    use_notiflix_report(),
     use_waiter(),
     tabItems(
       # First tab content
@@ -164,19 +166,14 @@ ui <- shinydashboardPlus::dashboardPage(
             title = "Get Link, Annotate, and Download Template as CSV",
             status = "primary",
             width = 12,
-            actionButton("btn_template", "Click to Generate Google Sheets Template",
+            actionButton("btn_download", "Click to Generate Google Sheets Template",
               class = "btn-primary-color"
             ),
             hidden(
               div(
-                id = "div_template_warn",
+                id = "div_download",
                 height = "100%",
-                htmlOutput("text_template_warn")
-              ),
-              div(
-                id = "div_template",
-                height = "100%",
-                htmlOutput("text_template")
+                htmlOutput("text_download")
               )
             ),
             helpText("This link will leads to an empty template or your previously submitted template with new files if applicable.")
@@ -230,7 +227,7 @@ ui <- shinydashboardPlus::dashboardPage(
       )
     ),
     # waiter loading screen
-    dcWaiter("show", landing = TRUE)
+    dcWaiter("show", isLogin = TRUE)
   )
 )
 
