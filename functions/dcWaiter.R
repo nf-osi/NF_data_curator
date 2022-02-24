@@ -1,14 +1,12 @@
 # This is script to wrap up the waiter screen for data curator app
 # TODO: maybe we could split into UI and server if we need
 
-dcWaiter <- function(stage = c("show", "update", "hide"), landing = FALSE, userName = NULL,
-                     isLogin = TRUE, isCertified = TRUE, isPermission = TRUE,
+dcWaiter <- function(stage = c("show", "update", "hide"),
+                     isLogin = FALSE, isPass = TRUE, usrName = NULL,
                      sleep = 2, msg = NULL, spin = NULL) {
   # validate arguments
-  if (!is.logical(landing)) stop("landing must be a boolean")
   if (!is.logical(isLogin)) stop("isLogin must be a boolean")
-  if (!is.logical(isCertified)) stop("isCertified must be a boolean")
-  if (!is.logical(isPermission)) stop("isPermission must be a boolean")
+  if (!is.logical(isPass)) stop("isPass must be a boolean")
   if (!is.numeric(sleep)) stop("sleep must be a numeric")
   if (!stage %in% c("show", "update", "hide")) {
     stop("Please provide a value for stage: 'show', 'update' or 'hide'.")
@@ -22,9 +20,9 @@ dcWaiter <- function(stage = c("show", "update", "hide"), landing = FALSE, userN
     return(waiter_hide())
   }
 
-  # first loading screen of app
-  if (landing) {
-  
+  # log in screen
+  if (isLogin) {
+    # The message on initial loading page are not customizable
     if (stage == "show") {
       waiter_show_on_load(
         html = tagList(
@@ -33,50 +31,28 @@ dcWaiter <- function(stage = c("show", "update", "hide"), landing = FALSE, userN
         ),
         color = "#424874"
       )
-    # } else if (!isLogin) {
-    #   # when user is not login
-    #   waiter_update(html = tagList(
-    #     img(src = "img/synapse_logo.png", height = "120px"),
-    #     h3("Looks like you're not logged in!"), 
-    #     span("Please ", 
-    #       a("login", href = "https://www.synapse.org/#!LoginPlace:0", target = "_blank"),
-    #       " to Synapse, then refresh this page."
-    #     )
-    #   ))
-    } else if (!isCertified) {
-      # when user is not certified synapse user
+    } else if (isPass) {
       waiter_update(html = tagList(
         img(src = "img/synapse_logo.png", height = "120px"),
-        h3("Looks like you're not a synapse certified user!"),
-        span("Please follow the ", 
-          a("instruction", 
-            href = "https://help.synapse.org/docs/User-Account-Tiers.2007072795.html#UserAccountTiers-CertifiedUsers", 
-            target = "_blank"
-          ),
-          " to become a certified user, then refresh this page."
-        )
-      ))
-    } else if (!isPermission) {
-      # when user is not certified synapse user
-      waiter_update(html = tagList(
-        img(src = "img/synapse_logo.png", height = "120px"),
-        h3("Fileview Access Denied!"),
-        span("You may not have sufficient permissions for curation.
-         Please contact your team and project administrators.")
-      ))
-    } else {
-      # success loading page; userName needed to provide
-      waiter_update(html = tagList(
-        img(src = "img/synapse_logo.png", height = "120px"),
-        h3(sprintf("Welcome, %s!", userName))
+        h3(sprintf("Welcome, %s!", usrName))
       ))
       Sys.sleep(sleep)
       waiter_hide()
+    } else {
+      # ensure the synapse logo image is stored in www/
+      waiter_update(html = tagList(
+        img(src = "img/synapse_logo.png", height = "120px"),
+        h3("Looks like you're not logged in!"), span(
+          "Please ", a("login",
+            href = "https://www.synapse.org/#!LoginPlace:0", target = "_blank"
+          ),
+          " to Synapse, then refresh this page."
+        )
+      ))
     }
-
   } else {
-  
     # other loading screens
+
     if (stage == "show") {
       waiter_show(
         html = tagList(spin, br(), h3(msg)),
