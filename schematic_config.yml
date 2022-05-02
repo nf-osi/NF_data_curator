@@ -8,7 +8,7 @@ definitions:
 synapse:
   master_fileview: 'syn16858331'
   manifest_folder: 'manifests'
-  manifest_filename: 'synapse_storage_manifest.csv' 
+  manifest_basename: 'synapse_storage_manifest' 
   token_creds: 'syn21088684'
   service_acct_creds: 'syn25171627'
   
@@ -19,7 +19,7 @@ manifest:
 
 model:
   input:
-    download_url: 'https://raw.githubusercontent.com/nf-osi/nf-metadata-dictionary/v3.0.3/NF.jsonld' # url to download JSON-LD data model
+    download_url: 'https://raw.githubusercontent.com/nf-osi/nf-metadata-dictionary/5c362431fd52a2890b63d65114bc9b3a9a26e11e/NF.jsonld' # url to download JSON-LD data model
     location: 'data-models/NF.jsonld' # path to JSON-LD data model
     file_type: 'local' 
     
