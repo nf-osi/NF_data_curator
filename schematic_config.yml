@@ -4,6 +4,7 @@ definitions:
   creds_path: 'credentials.json'
   token_pickle: 'token.pickle'
   service_acct_creds: 'schematic_service_account_creds.json'
+
 synapse:
   master_fileview: 'syn16858331'
   manifest_folder: 'manifests'
@@ -11,13 +12,19 @@ synapse:
   token_creds: 'syn21088684'
   service_acct_creds: 'syn25171627'
 manifest:
+
+  # if making many manifests, just include name prefix
   title: 'NF'
+  # to make all manifests enter only 'all manifests'
   data_type:
     - 'NF'
+
 model:
   input:
+    # if both 'download_url' and 'repo' present, `repo` will be used
     download_url: 'https://raw.githubusercontent.com/nf-osi/nf-metadata-dictionary/v.6.2.0/NF.jsonld' # url to download JSON-LD data model
-    location: 'data-models/NF.jsonld' # path to JSON-LD data model
+    #repo: 'nf-osi/nf-metadata-dictionary/v6.2.0' # data model repo url (<repo-owner>/<repo-name>/<version/branch>), version or branch is optional
+    #location: 'NF.jsonld' # path to JSON-LD file
     file_type: 'local'
 style:
   google_manifest:
