@@ -1,4 +1,4 @@
-# Pushes to main
+# Pushes to production
 #              \__#1 deploy w/ SCHEMATIC_PIN --> NF_data_curator (prod)
 #
 # Pushes to develop
@@ -14,7 +14,7 @@ name: custom-shiny-deploy
 on:
   push:
     branches:
-      - main
+      - production
       - develop
       - edge
     paths-ignore:
@@ -60,7 +60,7 @@ jobs:
           source .venv/bin/activate
           # use 'poetry' to install schematic dev schematic
           # If commit is tagged for release or in main branch, install schematic from pypi
-          if [[ $GITHUB_REF_NAME == main ]] || [[ $GITHUB_REF_NAME == develop ]]; then
+          if [[ $GITHUB_REF_NAME == production ]] || [[ $GITHUB_REF_NAME == develop ]]; then
             echo Deploying with pypi version of schematic==${{ env.SCHEMATIC_PIN }}
             git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
             cp schematic_config.yml schematic/config.yml
@@ -110,7 +110,7 @@ jobs:
           repo <- Sys.getenv("GITHUB_REPOSITORY")
           appName <- strsplit(repo, "/")[[1]][2]
           refName <- Sys.getenv("GITHUB_REF_NAME")
-          if (refName == "main" || grepl("v[0-9]+.[0-9]+.[0-9]+", refName)) {
+          if (refName == "production" || grepl("v[0-9]+.[0-9]+.[0-9]+", refName)) {
             message("Deploying production instance: ", appName)
           } else if (refName == "develop") {
             appName <- paste(appName, "staging", sep = "-")
