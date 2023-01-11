@@ -5,7 +5,6 @@
       {"display_name": "RNA Sequencing Assay", "schema_name": "RNASeqTemplate", "type": "file"},
       {"display_name": "Single-cell RNA Sequencing Assay", "schema_name": "ScRNASeqTemplate", "type": "file"},
       {"display_name": "Epigenetics Assay", "schema_name": "EpigeneticsAssayTemplate", "type": "file"},
-      {"display_name": "PDX Genomics Assay", "schema_name": "PdxGenomicsAssayTemplate", "type": "file"},
       {"display_name": "Other Genomics Assay", "schema_name": "GenomicsAssayTemplate", "type": "file"},
       {"display_name": "Other Genomics Assay (Extended)", "schema_name": "GenomicsAssayTemplateExtended", "type": "file"},
       {"display_name": "Imaging Assay", "schema_name": "ImagingAssayTemplate", "type": "file"},
