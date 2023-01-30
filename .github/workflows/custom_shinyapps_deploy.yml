@@ -7,7 +7,7 @@
 #
 # Pushes to edge
 #               \__#3 deploy w/ schematic `develop` on GH --> NF_data_curator-edge
-# Edge deploys are for checking new schematic development features
+# Edge deploys for testing schematic development branch or simply the *next* version of schematic
 
 name: custom-shiny-deploy
 
@@ -23,9 +23,10 @@ on:
       - '**/.gitignore'
 
 env: 
-  # Known stable and tested version of schematic used with prod and staging DCA
+  # PIN=known stable and tested version of schematic used with prod and staging DCA
   SCHEMATIC_PIN: 22.11.3
-  
+  SCHEMATIC_NEXT: 23.1.1
+
 jobs:
   shiny-deploy:
     runs-on: ubuntu-latest
@@ -58,7 +59,6 @@ jobs:
         run: |
           # has to activate each bash step
           source .venv/bin/activate
-          # use 'poetry' to install schematic dev schematic
           # If commit is tagged for release or in main branch, install schematic from pypi
           if [[ $GITHUB_REF_NAME == production ]] || [[ $GITHUB_REF_NAME == develop ]]; then
             echo Deploying with pypi version of schematic==${{ env.SCHEMATIC_PIN }}
@@ -66,14 +66,20 @@ jobs:
             cp schematic_config.yml schematic/config.yml
             cd schematic
             pip3 install schematicpy==${{ env.SCHEMATIC_PIN }}
-          else
+          elif [[ ${{ env.SCHEMATIC_NEXT }} == develop ]]; then
             pip3 install poetry
-            echo Deploying with develop branch of schematic from github
+            echo Deploying bleeding edge with latest on develop branch of schematic
             git clone --single-branch --branch develop https://github.com/Sage-Bionetworks/schematic.git
             cp schematic_config.yml schematic/config.yml
             cd schematic
             poetry build
             pip3 install dist/schematicpy-1.0.0-py3-none-any.whl
+          else
+            echo Deploying edge with pypi version of schematic==${{ env.SCHEMATIC_NEXT }}
+            git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
+            cp schematic_config.yml schematic/config.yml
+            cd schematic
+            pip3 install schematicpy==${{ env.SCHEMATIC_NEXT }}
           fi
 
       - name: Set Configurations for Schematic
