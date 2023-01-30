@@ -16,7 +16,7 @@ on:
     branches:
       - production
       - develop
-      - edge
+      - edge-*
     paths-ignore:
       - '.github/ISSUE_TEMPLATE/**'
       - '**/*.md'
