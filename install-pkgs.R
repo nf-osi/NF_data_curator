@@ -11,7 +11,7 @@ cran <- c(
   "stringr==1.4.0",
   "DT==0.20",
   "jsonlite==1.7.3",
-  "reticulate==1.27",
+  "reticulate==1.23",
   # "shinydashboardPlus==2.0.3",
   "waiter==0.2.5",
   "readr==2.1.1",
@@ -32,7 +32,7 @@ gh <- c(
 # The binary package distributions from R Studio dramatically speed up installation time
 # For Ubuntu 18.04 (Bionic) it's https://packagemanager.rstudio.com/all/__linux__/bionic/latest
 # For Ubuntu 20.04 (Focal)  it's https://packagemanager.rstudio.com/all/__linux__/focal/latest
-options(repos = c(REPO_NAME = "https://packagemanager.rstudio.com/all/__linux__/bionic/latest", getOption("repos")))
+options(repos = c(REPO_NAME = "https://packagemanager.rstudio.com/all/__linux__/focal/latest", getOption("repos")))
 
 install.packages("remotes")
 invisible(
