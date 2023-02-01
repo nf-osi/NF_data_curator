@@ -175,7 +175,7 @@ shinyServer(function(input, output, session) {
       project_id <- data_list$projects()[input[[paste0(x, "project")]]]
 
       # gets folders per project
-      folder_df <- syn_tableQuery(sprintf("select name, id from %s where type = 'folder' and projectId = '%s'", config$main_fileview, project_id))$asDataFrame()
+      folder_df <- syn$tableQuery(sprintf("select name, id from %s where type = 'folder' and projectId = '%s'", config$main_fileview, project_id))$asDataFrame()
       
       folder_list <- setNames(as.list(folder_df$id), folder_df$name)
 
@@ -288,7 +288,7 @@ shinyServer(function(input, output, session) {
           as.list(names(data_list$files()))
         ),
 
-        datasetId = folder_synID(),
+        datasetId = selected$folder(),
         useAnnotations = T
 
       )
@@ -455,7 +455,7 @@ shinyServer(function(input, output, session) {
       manifest_id <- syn_store$associateMetadataWithFiles(
         schemaGenerator = schema_generator,
         metadataManifestPath = "./tmp/synapse_storage_manifest.csv",
-        datasetId = folder_synID(),
+        datasetId = selected$folder(),
         manifest_record_type = "entity",
         restrict_manifest = FALSE,
         useSchemaLabel = FALSE,
@@ -493,7 +493,7 @@ shinyServer(function(input, output, session) {
       manifest_id <- syn_store$associateMetadataWithFiles(
         schemaGenerator = schema_generator,
         metadataManifestPath = "./tmp/synapse_storage_manifest.csv",
-        datasetId = folder_synID(),
+        datasetId = selected$folder(),
         manifest_record_type = "entity",
         restrict_manifest = FALSE,
         useSchemaLabel = FALSE,
