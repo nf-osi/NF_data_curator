@@ -105,6 +105,8 @@ reticulate::use_virtualenv(file.path(getwd(), ".venv"), required = TRUE)
 syn <- import("synapseclient")$Synapse()
 # import schematic modules
 source_python("functions/metadataModel.py")
+# inport stuff used by NF
+source_python("functions/synapse_func_alias.py")
 # import R files
 source_files <- list.files(c("functions", "modules"), pattern = "*\\.R$", recursive = TRUE, full.names = TRUE) %>%
   .[!grepl("dashboard", .)]
