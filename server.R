@@ -175,9 +175,9 @@ shinyServer(function(input, output, session) {
       project_id <- data_list$projects()[input[[paste0(x, "project")]]]
 
       # gets folders per project
-      folder_df <- syn$tableQuery(sprintf("select name, id from %s where type = 'folder' and projectId = '%s'", config$main_fileview, project_id))$asDataFrame()
-      
-      folder_list <- setNames(as.list(folder_df$id), folder_df$name)
+      # folder_df <- syn$tableQuery(sprintf("select name, id from %s where type = 'folder' and projectId = '%s'", config$main_fileview, project_id))$asDataFrame()
+      # folder_list <- setNames(as.list(folder_df$id), folder_df$name)
+      folder_list <- syn_store$getStorageDatasetsInProject(project_id) %>% list2Vector()
 
       if (length(folder_list) > 0) folder_names <- sort(names(folder_list)) else folder_names <- " "
 
@@ -287,10 +287,7 @@ shinyServer(function(input, output, session) {
           NULL,
           as.list(names(data_list$files()))
         ),
-
-        datasetId = selected$folder(),
-        useAnnotations = T
-
+        datasetId = selected$folder()
       )
 
     # generate link
@@ -454,12 +451,10 @@ shinyServer(function(input, output, session) {
       # associates metadata with data and returns manifest id
       manifest_id <- syn_store$associateMetadataWithFiles(
         schemaGenerator = schema_generator,
-        metadataManifestPath = "./tmp/synapse_storage_manifest.csv",
+        metadataManifestPath = tmp_file_path,
         datasetId = selected$folder(),
-        manifest_record_type = "entity",
-        restrict_manifest = FALSE,
-        useSchemaLabel = FALSE,
-        hideBlanks = TRUE
+        manifest_record_type = "table",
+        restrict_manifest = FALSE
       )
       manifest_path <- tags$a(href = paste0("https://www.synapse.org/#!Synapse:", manifest_id), manifest_id, target = "_blank")
 
@@ -492,13 +487,10 @@ shinyServer(function(input, output, session) {
       # associates metadata with data and returns manifest id
       manifest_id <- syn_store$associateMetadataWithFiles(
         schemaGenerator = schema_generator,
-        metadataManifestPath = "./tmp/synapse_storage_manifest.csv",
+        metadataManifestPath = tmp_file_path,
         datasetId = selected$folder(),
-        manifest_record_type = "entity",
-        restrict_manifest = FALSE,
-        useSchemaLabel = FALSE,
-        hideBlanks = TRUE
-
+        manifest_record_type = "table",
+        restrict_manifest = FALSE
       )
       manifest_path <- tags$a(href = paste0("https://www.synapse.org/#!Synapse:", manifest_id), manifest_id, target = "_blank")
 
