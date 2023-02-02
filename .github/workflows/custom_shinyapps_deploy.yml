@@ -24,7 +24,7 @@ on:
 
 env: 
   # PIN=known stable and tested version of schematic used with prod and staging DCA
-  SCHEMATIC_PIN: 22.11.3
+  SCHEMATIC_PIN: 23.1.1
   SCHEMATIC_NEXT: 23.1.1
 
 jobs:
