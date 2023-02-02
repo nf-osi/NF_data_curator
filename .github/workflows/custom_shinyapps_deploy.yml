@@ -112,6 +112,8 @@ jobs:
         # unzip it in 'global.R'
         run: |
           zip -rm .venv.zip .venv
+          echo ---- List of files part of this app upload bundle ----
+          ls -a
       
       - name: Authorize and deploy app
         shell: Rscript {0}
