@@ -87,7 +87,7 @@ jobs:
         run: |
           # write out configuration files using github secrets
           echo "${{ secrets.SCHEMATIC_SYNAPSE_CONFIG }}" > .synapseConfig
-          echo "${{ secrets.SCHEMATIC_SERVICE_ACCT_CREDS }}" > schematic_service_account_creds.json
+          echo ${{ secrets.SCHEMATIC_SERVICE_ACCT_CREDS }} | base64 --decode > schematic_service_account_creds.json
 
       - name: Set Configurations for Data Model
         shell: bash

@@ -12,7 +12,7 @@
       {"display_name": "Pharmacokinetics Assay", "schema_name": "PharmacokineticsAssayTemplate", "type": "file"},
       {"display_name": "Proteomics Assay", "schema_name": "ProteomicsAssayTemplate", "type": "file"},
       {"display_name": "Plate-Based Reporter Assay", "schema_name": "PlateBasedReporterAssayTemplate", "type": "file"},
-      {"display_name": "Update Milestone Report Values", "schema_name": "UpdateMilestoneReportTemplate", "type": "file"},
+      {"display_name": "Update Milestone Report", "schema_name": "UpdateMilestoneReport", "type": "file"},
       {"display_name": "Clinical Assay Template", "schema_name": "ClinicalAssayTemplate", "type": "file"},
       {"display_name": "Processed/Aligned Sequencing Reads", "schema_name": "ProcessedAlignedReadsTemplate", "type": "file"},
       {"display_name": "Processed Variant Calls", "schema_name": "ProcessedVariantCallsTemplate", "type": "file"},
