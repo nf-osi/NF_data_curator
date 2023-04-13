@@ -1,9 +1,9 @@
-name: Update source model for dev
+name: Data model staging
 
-# Update model download_url in `schematic_config.yml`
-# to point to new source URL in `develop` branch. 
+# When a new data model version is released, update the download_url in `schematic_config.yml` so we can see/test changes in the `staging` deployment. 
+
 on:
-  # Note: can also run this workflow manually from the Actions tab
+  # Note: this allows running this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       source:
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      # Check out development branch under $GITHUB_WORKSPACE
+      # Check out staging branch under $GITHUB_WORKSPACE
       - uses: actions/checkout@v3
         with:
-          ref: develop
+          ref: staging
           persist-credentials: false
           
       # Check steps matter more for rare occasions of manual input
