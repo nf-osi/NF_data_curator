@@ -1,7 +1,7 @@
 # Pushes to production
 #              \__#1 deploy w/ SCHEMATIC_PIN --> NF_data_curator (prod)
 #
-# Pushes to develop
+# Pushes to staging
 #              \__#2 deploy w/ SCHEMATIC_PIN --> NF_data_curator-staging
 # Staging deploys are for staging of regular releases of data model
 #
@@ -15,7 +15,7 @@ on:
   push:
     branches:
       - production
-      - develop
+      - staging
       - edge-*
     paths-ignore:
       - '.github/ISSUE_TEMPLATE/**'
@@ -60,7 +60,7 @@ jobs:
           # has to activate each bash step
           source .venv/bin/activate
           # If commit is tagged for release or in main branch, install schematic from pypi
-          if [[ $GITHUB_REF_NAME == production ]] || [[ $GITHUB_REF_NAME == develop ]]; then
+          if [[ $GITHUB_REF_NAME == production ]] || [[ $GITHUB_REF_NAME == staging ]]; then
             echo Deploying with pypi version of schematic==${{ env.SCHEMATIC_PIN }}
             git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
             cp schematic_config.yml schematic/config.yml
@@ -118,7 +118,7 @@ jobs:
           refName <- Sys.getenv("GITHUB_REF_NAME")
           if (refName == "production" || grepl("v[0-9]+.[0-9]+.[0-9]+", refName)) {
             message("Deploying production instance: ", appName)
-          } else if (refName == "develop") {
+          } else if (refName == "staging") {
             appName <- paste(appName, "staging", sep = "-")
             message("Deploying staging instance: ", appName)
           } else {
