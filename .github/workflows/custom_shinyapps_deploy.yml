@@ -1,0 +1,142 @@
+# Pushes to production
+#              \__#1 deploy w/ SCHEMATIC_PIN --> NF_data_curator (prod)
+#
+# Pushes to develop
+#              \__#2 deploy w/ SCHEMATIC_PIN --> NF_data_curator-staging
+# Staging deploys are for staging of regular releases of data model
+#
+# Pushes to edge
+#               \__#3 deploy w/ schematic `develop` on GH --> NF_data_curator-edge
+# Edge deploys for testing schematic development branch or simply the *next* version of schematic
+
+name: custom-shiny-deploy
+
+on:
+  push:
+    branches:
+      - production
+      - develop
+      - edge-*
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '**/*.md'
+      - '**/.gitignore'
+
+env: 
+  # PIN=known stable and tested version of schematic used with prod and staging DCA
+  SCHEMATIC_PIN: 23.1.1
+  SCHEMATIC_NEXT: 23.1.1
+
+jobs:
+  shiny-deploy:
+    runs-on: ubuntu-latest
+    # This image seems to be based on rocker/r-ver which in turn is based on debian
+    container: rocker/rstudio:4.1.2
+    env:
+      # This should not be necessary for installing from public repo's however remotes::install_github() fails without it.
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pip python3.8-venv libcurl4-openssl-dev
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-pandoc@v1
+
+      - name: Create and Activate Python Virtual Environment
+        shell: bash
+        run: |
+          python3 -m venv .venv
+          chmod 755 .venv/bin/activate
+          source .venv/bin/activate
+      - name: Install R Packages Dependencies
+        run: |
+          R -f install-pkgs.R
+
+      - name: Install Schematic
+        shell: bash
+        run: |
+          # has to activate each bash step
+          source .venv/bin/activate
+          # If commit is tagged for release or in main branch, install schematic from pypi
+          if [[ $GITHUB_REF_NAME == production ]] || [[ $GITHUB_REF_NAME == develop ]]; then
+            echo Deploying with pypi version of schematic==${{ env.SCHEMATIC_PIN }}
+            git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
+            cp schematic_config.yml schematic/config.yml
+            cd schematic
+            pip3 install schematicpy==${{ env.SCHEMATIC_PIN }}
+          elif [[ ${{ env.SCHEMATIC_NEXT }} == develop ]]; then
+            pip3 install poetry
+            echo Deploying bleeding edge with latest on develop branch of schematic
+            git clone --single-branch --branch develop https://github.com/Sage-Bionetworks/schematic.git
+            cp schematic_config.yml schematic/config.yml
+            cd schematic
+            poetry build
+            pip3 install dist/schematicpy-1.0.0-py3-none-any.whl
+          else
+            echo Deploying edge with pypi version of schematic==${{ env.SCHEMATIC_NEXT }}
+            git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
+            cp schematic_config.yml schematic/config.yml
+            cd schematic
+            pip3 install schematicpy==${{ env.SCHEMATIC_NEXT }}
+          fi
+
+      - name: Set Configurations for Schematic
+        shell: bash
+        run: |
+          # write out configuration files using github secrets
+          echo "${{ secrets.SCHEMATIC_SYNAPSE_CONFIG }}" > .synapseConfig
+          echo ${{ secrets.SCHEMATIC_SERVICE_ACCT_CREDS }} | base64 --decode > schematic_service_account_creds.json
+
+      - name: Set Configurations for Data Model
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          # download the data models and create config.json
+          python3 .github/config_schema.py \
+            -c schematic_config.yml \
+            --service_repo 'Sage-Bionetworks/schematic' # \
+            # --overwrite ##manually define config file
+
+      - name: zip virtual env
+        shell: bash
+        # ShinyApps has a limit of 7000 files, far exceeded by the many Python dependencies
+        # that this app' has.  As a workaround we zip the virtual environment and later
+        # unzip it in 'global.R'
+        run: |
+          zip -rm .venv.zip .venv
+          echo ---- List of files part of this app upload bundle ----
+          ls -a
+      
+      - name: Authorize and deploy app
+        shell: Rscript {0}
+        run: |
+          # if there is a tag, 'refName' will be tag name
+          repo <- Sys.getenv("GITHUB_REPOSITORY")
+          appName <- strsplit(repo, "/")[[1]][2]
+          refName <- Sys.getenv("GITHUB_REF_NAME")
+          if (refName == "production" || grepl("v[0-9]+.[0-9]+.[0-9]+", refName)) {
+            message("Deploying production instance: ", appName)
+          } else if (refName == "develop") {
+            appName <- paste(appName, "staging", sep = "-")
+            message("Deploying staging instance: ", appName)
+          } else {
+            appName <- paste(appName, "edge", sep = "-")
+            message("Deploying edge instance: ", appName)
+          }
+          rsConnectUser <- "${{ secrets.RSCONNECT_USER }}"
+          rsConnectToken <- "${{ secrets.RSCONNECT_TOKEN }}"
+          rsConnectSecret <- "${{ secrets.RSCONNECT_SECRET }}"
+          # create config file
+          config <- "CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}"
+          config <- c(config, "CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}")
+          appUrl <- sprintf("https://%s.shinyapps.io/%s", rsConnectUser, appName)
+          config <- c(config, sprintf("APP_URL: %s", appUrl))
+          configFileConn <- file("oauth_config.yml")
+          tryCatch(
+            writeLines(config, configFileConn),
+            finally=close(configFileConn)
+          )
+          rsconnect::setAccountInfo(rsConnectUser, rsConnectToken, rsConnectSecret)
+          rsconnect::deployApp(appName = appName)
