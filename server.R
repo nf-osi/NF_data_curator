@@ -285,7 +285,8 @@ shinyServer(function(input, output, session) {
           NULL,
           as.list(names(data_list$files()))
         ),
-        datasetId = selected$folder()
+        datasetId = selected$folder(),
+        useAnnotations = T
       )
 
     # generate link
