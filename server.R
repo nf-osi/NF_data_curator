@@ -451,8 +451,10 @@ shinyServer(function(input, output, session) {
         schemaGenerator = schema_generator,
         metadataManifestPath = tmp_file_path,
         datasetId = selected$folder(),
-        manifest_record_type = "table",
-        restrict_manifest = FALSE
+        manifest_record_type = "entity",
+        restrict_manifest = FALSE,
+        useSchemaLabel = FALSE, 
+        hideBlanks = TRUE
       )
       manifest_path <- tags$a(href = paste0("https://www.synapse.org/#!Synapse:", manifest_id), manifest_id, target = "_blank")
 
@@ -486,9 +488,10 @@ shinyServer(function(input, output, session) {
       manifest_id <- syn_store$associateMetadataWithFiles(
         schemaGenerator = schema_generator,
         metadataManifestPath = tmp_file_path,
-        datasetId = selected$folder(),
-        manifest_record_type = "table",
-        restrict_manifest = FALSE
+        manifest_record_type = "entity",
+        restrict_manifest = FALSE,
+        useSchemaLabel = FALSE, 
+        hideBlanks = TRUE
       )
       manifest_path <- tags$a(href = paste0("https://www.synapse.org/#!Synapse:", manifest_id), manifest_id, target = "_blank")
 
