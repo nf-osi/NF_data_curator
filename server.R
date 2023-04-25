@@ -489,6 +489,7 @@ shinyServer(function(input, output, session) {
       manifest_id <- syn_store$associateMetadataWithFiles(
         schemaGenerator = schema_generator,
         metadataManifestPath = tmp_file_path,
+        datasetId = selected$folder(),
         manifest_record_type = "entity",
         restrict_manifest = FALSE,
         useSchemaLabel = FALSE, 
