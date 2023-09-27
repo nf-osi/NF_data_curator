@@ -18,7 +18,7 @@ cran <- c(
   "readr==2.1.1",
   "sass==0.4.1",
   "remotes==2.4.2",
-  "rsconnect==0.8.25",
+  "rsconnect==1.1.0",
   "png==0.1.7",
   "tidyr==1.1.4",
   "data.table==1.14.2",
