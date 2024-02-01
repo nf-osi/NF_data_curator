@@ -452,7 +452,7 @@ shinyServer(function(input, output, session) {
         schemaGenerator = schema_generator,
         metadataManifestPath = tmp_file_path,
         datasetId = selected$folder(),
-        manifest_record_type = "entity",
+        manifest_record_type = "table_and_file",
         restrict_manifest = FALSE,
         useSchemaLabel = FALSE, 
         hideBlanks = TRUE
@@ -490,7 +490,7 @@ shinyServer(function(input, output, session) {
         schemaGenerator = schema_generator,
         metadataManifestPath = tmp_file_path,
         datasetId = selected$folder(),
-        manifest_record_type = "entity",
+        manifest_record_type = "table_and_file",
         restrict_manifest = FALSE,
         useSchemaLabel = FALSE, 
         hideBlanks = TRUE
