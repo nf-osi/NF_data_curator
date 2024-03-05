@@ -37,6 +37,8 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Authorize and deploy app
         shell: Rscript {0}
         run: |
@@ -68,4 +70,4 @@ jobs:
             finally=close(configFileConn)
           )
           rsconnect::setAccountInfo(rsConnectUser, rsConnectToken, rsConnectSecret)
-          rsconnect::deployApp(appName = appName, forceUpdate = TRUE)
+          rsconnect::deployApp(appName = appName, appFiles = c("global.R", "ui.R", "server.R"), forceUpdate = TRUE)
