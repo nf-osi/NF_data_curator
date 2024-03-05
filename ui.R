@@ -8,213 +8,26 @@
 #
 # https://www.synapse.org
 
-ui <- shinydashboardPlus::dashboardPage(
-  title = "Data Curator",
-  skin = "purple",
-  dashboardHeader(
-    titleWidth = 250,
-    title = tagList(
-      span(class = "logo-lg", "Data Curator"),
-      span(class = "logo-mini", "DCA")
-    ),
-    leftUi = tagList(
-      dropdownBlock(
-        id = "header_selection_dropdown",
-        title = "Selection",
-        icon = icon("sliders"),
-        badgeStatus = "info",
-        fluidRow(
-          lapply(dropdown_types, function(x) {
-            div(
-              id = paste0("header_content_", x),
-              selectInput(
-                inputId = paste0("header_dropdown_", x),
-                label = NULL,
-                choices = character(0)
-              )
-            )
-          }),
-          actionButton("btn_header_update", NULL, icon("rotate"), class = "btn-shiny-effect")
-        )
+ui <- fluidPage(
+  titlePanel("The NF Data Curator App Has Moved"),
+  # Main panel for displaying outputs ----
+  mainPanel(
+    h3("New home"),
+    div(
+      "Please use and bookmark our new official app instance at: ",
+      tags$strong(
+        tags$a("https://dca.app.sagebionetworks.org/", href = "https://dca.app.sagebionetworks.org/")
       )
+    ),
+    br(),
+    br(),
+    h3("Other Resources for Annotation"),
+    tags$ul(
+      tags$li(
+        tags$a("How to Annotate Data Docs", href = "https://help.nf.synapse.org/NFdocs/how-to-annotate-data#HowtoAnnotateData-3.NavigatetotheNFDataCuratorapp")
     ),
     tags$li(
-      class = "dropdown", id = "HTAN_logo",
-      tags$a(
-        href = "https://synapse.org/",
-        target = "_blank",
-        tags$img(
-          height = "40px", alt = "SYNAPSE LOGO",
-          src = "img/synapse_logo.png"
-        )
-      )
-    )
-  ),
-  dashboardSidebar(
-    width = 250,
-    sidebarMenu(
-      id = "tabs",
-      menuItem(
-        "Select your Dataset",
-        tabName = "tab_data",
-        icon = icon("arrow-pointer")
-      ),
-      menuItem(
-        "Get Metadata Template",
-        tabName = "tab_template",
-        icon = icon("table")
-      ),
-      menuItem(
-        "Submit & Validate Metadata",
-        tabName = "tab_upload",
-        icon = icon("upload")
-      ),
-      # add sidebar footer here
-      tags$a(
-        id = "sidebar_footer", `data-toggle` = "tab",
-        tags$div(icon("heart")),
-        tags$footer(HTML('Powered by <i class="far fa-heart"></i> and Sage Bionetworks'))
-      )
-    )
-  ),
-  dashboardBody(
-    tags$head(
-      tags$style(sass(sass_file("www/scss/main.scss"))),
-      singleton(includeScript("www/js/readCookie.js")),
-      tags$script(htmlwidgets::JS("setTimeout(function(){history.pushState({}, 'Data Curator', window.location.pathname);},2000);"))
-    ),
-    # load dependencies
-    use_notiflix_report(width = "400px"),
-    use_waiter(),
-    tabItems(
-      # data selection & dashboard tab content
-      tabItem(
-        tabName = "tab_data",
-        h2("Set Dataset and Data Type for Curation"),
-        fluidRow(
-          box(
-            id = "box_pick_project",
-            status = "primary",
-            width = 6,
-            title = "Choose a Project and Folder: ",
-            selectInput(
-              inputId = "dropdown_project",
-              label = "Project:",
-              choices = "Generating..."
-            ),
-            selectInput(
-              inputId = "dropdown_folder",
-              label = "Dataset:",
-              choices = "Generating..."
-            ),
-            helpText(
-              "If your recently updated folder does not appear, please wait for a few minutes and refresh"
-            )
-          ),
-          box(
-            id = "box_pick_manifest",
-            status = "primary",
-            width = 6,
-            title = "Choose a Data Type: ",
-            selectInput(
-              inputId = "dropdown_datatype",
-              label = "Data Type:",
-              choices = "Generating..."
-            )
-          )#,
-          #dashboardUI("dashboard")
-        ),
-        switchTabUI("switchTab1", direction = "right")
-      ),
-      # template tab item
-      tabItem(
-        tabName = "tab_template",
-        useShinyjs(),
-        h2("Download Template for Selected Folder"),
-        fluidRow(
-          box(
-            title = "Get Link, Annotate, and Download Template as CSV",
-            status = "primary",
-            width = 12,
-            actionButton("btn_template", "Click to Generate Google Sheets Template",
-              class = "btn-primary-color"
-            ),
-            hidden(
-              div(
-                id = "div_template_warn",
-                height = "100%",
-                htmlOutput("text_template_warn")
-              ),
-              div(
-                id = "div_template",
-                height = "100%",
-                htmlOutput("text_template")
-              )
-            ),
-            helpText("This link will leads to an empty template or your previously submitted template with new files if applicable.")
-          )
-        ),
-        switchTabUI("switchTab2", direction = "both")
-      ),
-      # upload & submit tab content
-      tabItem(
-        tabName = "tab_upload",
-        h2("Submit & Validate a Filled Metadata Template"),
-        fluidRow(
-          box(
-            title = "Upload Filled Metadata as a CSV",
-            status = "primary",
-            width = 12,
-            csvInfileUI("inputFile")
-          ),
-          box(
-            title = "Metadata Preview",
-            collapsible = TRUE,
-            status = "primary",
-            width = 12,
-            DTableUI("tbl_preview")
-          ),
-          box(
-            title = "Validate Filled Metadata",
-            status = "primary",
-            collapsible = TRUE,
-            width = 12,
-            actionButton("btn_validate", "Validate Metadata", class = "btn-primary-color"),
-            div(
-              id = "div_validate",
-              height = "100%",
-              ValidationMsgUI("text_validate")
-            ),
-            DTableUI("tbl_validate"),
-            uiOutput("val_gsheet"),
-            helpText(
-              HTML("If you have an error, please try editing locally or on google sheet.
-                  Reupload your CSV and press the validate button as needed.")
-            )
-          ),
-          box(
-            title = "Submit Validated Metadata to Synapse",
-            status = "primary",
-            width = 12,
-            uiOutput("submit")
-          )
-        ),
-        switchTabUI("switchTab3", direction = "left")
-      )
-    ),
-    # waiter loading screen
-    dcWaiter("show", landing = TRUE)
+      tags$a("NF Metadata Dictionary", href = "https://nf-osi.github.io/nf-metadata-dictionary/")
+    ))
   )
 )
-
-uiFunc <- function(req) {
-  if (!has_auth_code(parseQueryString(req$QUERY_STRING))) {
-    authorization_url <- oauth2.0_authorize_url(api, app, scope = scope)
-    return(tags$script(HTML(sprintf(
-      "location.replace(\"%s\");",
-      authorization_url
-    ))))
-  } else {
-    ui
-  }
-}
