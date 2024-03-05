@@ -37,12 +37,18 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+       # https://docs.posit.co/connect/admin/r/dependencies/
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tcl tk tk-dev tk-table default-jdk cmake git libpng-dev libjpeg-dev make imagemagick libmagick++-dev gsfonts libssl-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libfontconfig1-dev libsodium-dev libglu1-mesa-dev libgl1-mesa-dev zlib1g-dev libcairo2-dev libssh2-1-dev libudunits2-dev unixodbc-dev libxml2-dev libmysqlclient-dev libcurl4-openssl-dev libtiff-dev libicu-dev libgdal-dev gdal-bin libgeos-dev libproj-dev libsqlite3-dev python3 libnode-dev libglpk-dev
+      
       - uses: actions/checkout@v4
 
       - name: Authorize and deploy app
         shell: Rscript {0}
         run: |
-          install.packages("rsconnect")
+          install.packages(c("rsconnect", "shiny"))
           # if there is a tag, 'refName' will be tag name
           repo <- Sys.getenv("GITHUB_REPOSITORY")
           appName <- strsplit(repo, "/")[[1]][2]
