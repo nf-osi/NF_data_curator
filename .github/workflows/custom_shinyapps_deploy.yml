@@ -37,80 +37,18 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+       # https://docs.posit.co/connect/admin/r/dependencies/
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pip python3.10-venv libcurl4-openssl-dev
+          sudo apt-get install -y tcl tk tk-dev tk-table default-jdk cmake git libpng-dev libjpeg-dev make imagemagick libmagick++-dev gsfonts libssl-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libfontconfig1-dev libsodium-dev libglu1-mesa-dev libgl1-mesa-dev zlib1g-dev libcairo2-dev libssh2-1-dev libudunits2-dev unixodbc-dev libxml2-dev libmysqlclient-dev libcurl4-openssl-dev libtiff-dev libicu-dev libgdal-dev gdal-bin libgeos-dev libproj-dev libsqlite3-dev python3 libnode-dev libglpk-dev
+      
       - uses: actions/checkout@v4
-      
-      - name: Create and Activate Python Virtual Environment
-        shell: bash
-        run: |
-          python3.10 -m venv .venv
-          chmod 755 .venv/bin/activate
-          source .venv/bin/activate
-      - name: Install R Packages Dependencies
-        run: |
-          R -f install-pkgs.R
 
-      - name: Install Schematic
-        shell: bash
-        run: |
-          # has to activate each bash step
-          source .venv/bin/activate
-          # If commit is tagged for release or in main branch, install schematic from pypi
-          if [[ $GITHUB_REF_NAME == production ]] || [[ $GITHUB_REF_NAME == staging ]]; then
-            echo Deploying with pypi version of schematic==${{ env.SCHEMATIC_PIN }}
-            git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
-            cp schematic_config.yml schematic/config.yml
-            cd schematic
-            pip3 install schematicpy==${{ env.SCHEMATIC_PIN }}
-          elif [[ ${{ env.SCHEMATIC_NEXT }} == develop ]]; then
-            pip3 install poetry
-            echo Deploying bleeding edge with latest on develop branch of schematic
-            git clone --single-branch --branch develop https://github.com/Sage-Bionetworks/schematic.git
-            cp schematic_config.yml schematic/config.yml
-            cd schematic
-            poetry build
-            pip3 install dist/schematicpy-1.0.0-py3-none-any.whl
-          else
-            echo Deploying edge with pypi version of schematic==${{ env.SCHEMATIC_NEXT }}
-            git clone --single-branch --branch main https://github.com/Sage-Bionetworks/schematic.git
-            cp schematic_config.yml schematic/config.yml
-            cd schematic
-            pip3 install schematicpy==${{ env.SCHEMATIC_NEXT }}
-          fi
-
-      - name: Set Configurations for Schematic
-        shell: bash
-        run: |
-          # write out configuration files using github secrets
-          echo "${{ secrets.SCHEMATIC_SYNAPSE_CONFIG }}" > .synapseConfig
-          echo ${{ secrets.SCHEMATIC_SERVICE_ACCT_CREDS }} | base64 --decode > schematic_service_account_creds.json
-
-      - name: Set Configurations for Data Model
-        shell: bash
-        run: |
-          source .venv/bin/activate
-          # download the data models and create config.json
-          python3 .github/config_schema.py \
-            -c schematic_config.yml \
-            --service_repo 'Sage-Bionetworks/schematic' # \
-            # --overwrite ##manually define config file
-
-      - name: zip virtual env
-        shell: bash
-        # ShinyApps has a limit of 7000 files, far exceeded by the many Python dependencies
-        # that this app' has.  As a workaround we zip the virtual environment and later
-        # unzip it in 'global.R'
-        run: |
-          zip -rm .venv.zip .venv
-          echo ---- List of files part of this app upload bundle ----
-          ls -a
-      
       - name: Authorize and deploy app
         shell: Rscript {0}
         run: |
+          install.packages(c("rsconnect", "shiny"))
           # if there is a tag, 'refName' will be tag name
           repo <- Sys.getenv("GITHUB_REPOSITORY")
           appName <- strsplit(repo, "/")[[1]][2]
@@ -138,4 +76,4 @@ jobs:
             finally=close(configFileConn)
           )
           rsconnect::setAccountInfo(rsConnectUser, rsConnectToken, rsConnectSecret)
-          rsconnect::deployApp(appName = appName, forceUpdate = TRUE)
+          rsconnect::deployApp(appName = appName, appFiles = c("global.R", "ui.R", "server.R"), forceUpdate = TRUE)
